@@ -1,0 +1,58 @@
+server:
+  port: 8080
+
+spring:
+  config:
+    import: optional:classpath:application-local.yml
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/jqh_lab}
+    username: ${DB_USERNAME:jqh}
+    password: ${DB_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379/0}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+  web:
+    resources:
+      static-locations: classpath:/static/,file:uploads/
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+jwt:
+  secret: ${JWT_SECRET:change-me-to-a-random-secret-at-least-32-chars}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+upload:
+  dir: uploads/images
+
+qwen:
+  api-key: ${QWEN_API_KEY:}
+  model: ${QWEN_MODEL:qwen-turbo}
+  api-url: ${QWEN_API_URL:https://dashscope.aliyuncs.com/compatible-mode}

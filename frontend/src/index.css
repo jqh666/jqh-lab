@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* 全局样式变量 */
+:root {
+  --color-primary: #6366f1;
+  --color-accent: #a855f7;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
