@@ -4,10 +4,17 @@ import useAuthStore from '../../stores/authStore.js'
 
 const navLinks = [
   { path: '/', label: '首页' },
-  { path: '/projects', label: '项目经验' },
+  { path: '/projects', label: '项目经历' },
   { path: '/portfolio', label: '作品集' },
   { path: '/ai-chat', label: 'AI 对话' },
   { path: '/blog', label: '博客' },
+]
+
+const adminLinks = [
+  { path: '/editor', label: '写文章' },
+  { path: '/knowledge', label: '知识库' },
+  { path: '/dashboard', label: '仪表盘' },
+  { path: '/data-center', label: '数据中台' },
 ]
 
 export default function Navbar() {
@@ -15,49 +22,36 @@ export default function Navbar() {
   const location = useLocation()
   const { user, logout } = useAuthStore()
 
+  const linkClass = (path) => `px-4 py-2 rounded-full text-sm transition-all duration-300 ${
+    location.pathname === path
+      ? 'bg-white/15 text-white'
+      : 'text-white/60 hover:text-white hover:bg-white/5'
+  }`
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 mt-4">
         <div className="flex items-center justify-between bg-white/10 backdrop-blur-2xl rounded-full px-6 py-3 border border-white/10 shadow-2xl">
-          {/* Logo */}
           <Link to="/" className="flex items-center gap-2 text-lg font-bold tracking-tight">
-            <span className="text-2xl">🧠</span>
+            <span className="text-2xl">JQH</span>
             <span className="hidden sm:inline bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               沁昊の脑洞实验室
             </span>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`px-4 py-2 rounded-full text-sm transition-all duration-300 ${
-                  location.pathname === link.path
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
+              <Link key={link.path} to={link.path} className={linkClass(link.path)}>
                 {link.label}
               </Link>
             ))}
-            {user?.role === 'admin' && (
-              <>
-                <Link to="/editor" className="px-4 py-2 rounded-full text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all duration-300">
-                  写文章
-                </Link>
-                <Link to="/knowledge" className="px-4 py-2 rounded-full text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all duration-300">
-                  知识库
-                </Link>
-                <Link to="/dashboard" className="px-4 py-2 rounded-full text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all duration-300">
-                  仪表盘
-                </Link>
-              </>
-            )}
+            {user?.role === 'admin' && adminLinks.map((link) => (
+              <Link key={link.path} to={link.path} className={linkClass(link.path)}>
+                {link.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Auth */}
           <div className="flex items-center gap-3">
             {user ? (
               <button
@@ -74,7 +68,6 @@ export default function Navbar() {
                 登录
               </Link>
             )}
-            {/* Mobile Menu Button */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="md:hidden flex flex-col gap-1.5 p-2"
@@ -93,10 +86,9 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden fixed inset-0 top-0 bg-black/90 backdrop-blur-3xl z-40 flex flex-col items-center justify-center gap-6">
-          {navLinks.map((link) => (
+          {[...navLinks, ...(user?.role === 'admin' ? adminLinks : [])].map((link) => (
             <Link
               key={link.path}
               to={link.path}
@@ -106,13 +98,6 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          {user?.role === 'admin' && (
-            <>
-              <Link to="/editor" onClick={() => setMenuOpen(false)} className="text-2xl text-white/80 hover:text-white">写文章</Link>
-              <Link to="/knowledge" onClick={() => setMenuOpen(false)} className="text-2xl text-white/80 hover:text-white">知识库</Link>
-              <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="text-2xl text-white/80 hover:text-white">仪表盘</Link>
-            </>
-          )}
         </div>
       )}
     </nav>

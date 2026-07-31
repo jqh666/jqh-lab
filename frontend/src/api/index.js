@@ -69,6 +69,11 @@ export const dashboardApi = {
   stats: () => api.get('/dashboard/stats'),
 }
 
+export const dataApi = {
+  overview: (params) => api.get('/data/overview', { params }),
+  event: (data) => api.post('/data/events', data),
+}
+
 export const uploadApi = {
   image: (file) => {
     const formData = new FormData()

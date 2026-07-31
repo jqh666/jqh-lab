@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { trackEvent } from '../../utils/tracker.js'
 
 const CHAT_SESSION_KEY = 'jqh_ai_chat_session_id'
 
@@ -82,6 +83,12 @@ export default function AIChat() {
     setError('')
     setMessages((prev) => [...prev, { role: 'user', content: userMsg }])
     setLoading(true)
+    trackEvent('ai_chat_send', {
+      pagePath: '/ai-chat',
+      targetType: 'ai_chat',
+      targetId: sessionIdRef.current,
+      metadata: JSON.stringify({ questionLength: userMsg.length }),
+    })
 
     const assistantMsg = { role: 'assistant', content: '' }
     setMessages((prev) => [...prev, assistantMsg])
@@ -106,6 +113,7 @@ export default function AIChat() {
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
+      let assistantLength = 0
 
       while (true) {
         const { done, value } = await reader.read()
@@ -117,12 +125,31 @@ export default function AIChat() {
         const events = buffer.split(/\r?\n\r?\n/)
         buffer = events.pop() || ''
         for (const event of events) {
-          appendAssistantChunk(parseSseEvent(event), setMessages)
+          const chunk = parseSseEvent(event)
+          assistantLength += chunk?.length || 0
+          appendAssistantChunk(chunk, setMessages)
         }
       }
 
-      appendAssistantChunk(parseSseEvent(buffer), setMessages)
+      const finalChunk = parseSseEvent(buffer)
+      assistantLength += finalChunk?.length || 0
+      appendAssistantChunk(finalChunk, setMessages)
+      trackEvent('ai_chat_success', {
+        pagePath: '/ai-chat',
+        targetType: 'ai_chat',
+        targetId: sessionIdRef.current,
+        metadata: JSON.stringify({
+          questionLength: userMsg.length,
+          answerLength: assistantLength,
+        }),
+      })
     } catch (err) {
+      trackEvent('ai_chat_error', {
+        pagePath: '/ai-chat',
+        targetType: 'ai_chat',
+        targetId: sessionIdRef.current,
+        metadata: JSON.stringify({ message: err?.message || 'unknown' }),
+      })
       setError('连接失败，请确保后端服务已启动')
       setMessages((prev) => {
         const updated = [...prev]

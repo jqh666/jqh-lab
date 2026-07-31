@@ -47,6 +47,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/ai/knowledge-list").permitAll()
                 .requestMatchers("/api/ai/upload-knowledge").authenticated()
                 .requestMatchers("/api/ai/knowledge/*").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/data/events").permitAll()
+                .requestMatchers("/api/data/**").authenticated()
                 .requestMatchers("/api/upload/**").authenticated()
                 .requestMatchers("/api/dashboard/stats").permitAll()
                 .requestMatchers("/api/dashboard/**").authenticated()

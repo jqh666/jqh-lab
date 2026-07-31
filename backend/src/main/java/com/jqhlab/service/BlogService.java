@@ -52,12 +52,28 @@ public class BlogService {
     }
 
     public void createPost(BlogPost post) {
+        if (post.getSlug() == null || post.getSlug().isBlank()) {
+            post.setSlug(generateSlug(post.getTitle()));
+        }
         blogPostMapper.insert(post);
     }
 
     public void updatePost(Long id, BlogPost post) {
         post.setId(id);
+        if (post.getSlug() == null || post.getSlug().isBlank()) {
+            post.setSlug(generateSlug(post.getTitle()));
+        }
         blogPostMapper.updateById(post);
+    }
+
+    private String generateSlug(String title) {
+        String base = (title == null ? "" : title).toLowerCase()
+                .replaceAll("[^a-z0-9\\u4e00-\\u9fa5]+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (base.isEmpty()) {
+            base = "post";
+        }
+        return base + "-" + System.currentTimeMillis();
     }
 
     public void deletePost(Long id) {
